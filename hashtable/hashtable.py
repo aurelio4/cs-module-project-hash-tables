@@ -2,11 +2,10 @@ class HashTableEntry:
     """
     Linked List hash table key/value pair
     """
-    def __init__(self, key, value):
+    def __init__(self, key, value, next):
         self.key = key
         self.value = value
         self.next = None
-
 
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
@@ -22,6 +21,8 @@ class HashTable:
 
     def __init__(self, capacity):
         # Your code here
+        self.data = [None] * capacity
+        self.capacity = capacity
 
 
     def get_num_slots(self):
@@ -35,6 +36,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        return len(self.data)
 
 
     def get_load_factor(self):
@@ -54,6 +56,7 @@ class HashTable:
         """
 
         # Your code here
+        pass
 
 
     def djb2(self, key):
@@ -63,6 +66,10 @@ class HashTable:
         Implement this, and/or FNV-1.
         """
         # Your code here
+        hash = 5381
+        for x in key:
+            hash = (( hash << 5) + hash) + ord(x)
+        return hash & 0xFFFFFFFF
 
 
     def hash_index(self, key):
@@ -82,7 +89,20 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        ke = key.encode()
+        total = 0
+        for byte in ke:
+            total += byte
+        
+        entry = HashTableEntry(key, value, None)
 
+        if self.data[total % self.capacity] is not None:
+            entry = HashTableEntry(key, value, self.data[total % self.capacity])
+        else:
+            entry = HashTableEntry(key, value, None)
+
+        index = self.hash_index(key)
+        self.data[index] = entry
 
     def delete(self, key):
         """
@@ -93,6 +113,19 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        ke = key.encode()
+        total = 0
+        for byte in ke:
+            total += byte
+        
+        index = self.hash_index(key)
+        self.data[index] = None
+        
+        # if self.data[total % self.capacity] is not None:
+        #     while self.data[total % self.capacity].next is not None:
+                
+        # else:
+        #     self.data[total % self.capacity] = None
 
 
     def get(self, key):
@@ -104,7 +137,22 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        ke = key.encode()
+        total = 0
+        index = self.hash_index(key)
 
+        for byte in ke:
+            total += byte
+        
+        if self.data[index] != None:
+            node = self.data[index]
+
+            while node is not None:
+                if node.key == key:
+                    return node.value
+                node = node.next
+        else:
+            return None
 
     def resize(self, new_capacity):
         """
